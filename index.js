@@ -2,42 +2,39 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-app.use(cors()); // Allow requests from frontend
-app.use(express.json()); // Parse JSON requests
+const port = 10000;
 
-// POST Endpoint: /bfhl
+app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+    res.send("Backend is working!");
+});
+
+// Your existing API routes
 app.post("/bfhl", (req, res) => {
     const { data } = req.body;
 
     if (!data || !Array.isArray(data)) {
-        return res.status(400).json({
-            is_success: false,
-            message: "Invalid input format",
-        });
+        return res.status(400).json({ error: "Invalid input" });
     }
 
-    const numbers = data.filter((item) => !isNaN(item)); // Extract numbers
-    const alphabets = data.filter((item) => /^[A-Za-z]$/.test(item)); // Extract alphabets
-    const highestAlphabet = alphabets.length > 0
-        ? [alphabets.sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" })).pop()]
-        : [];
+    const numbers = data.filter(item => !isNaN(item));
+    const alphabets = data.filter(item => isNaN(item));
+    const highestAlphabet = alphabets.sort().slice(-1)[0] || null;
 
     res.json({
         is_success: true,
-        user_id: "john_doe_17091999",
-        email: "john@xyz.com",
-        roll_number: "ABCD123",
+        user_id: "22BCS14051",
+        email: "your_email@example.com",
+        roll_number: "22BCS14051",
         numbers,
         alphabets,
-        highest_alphabet: highestAlphabet,
+        highest_alphabet: highestAlphabet
     });
 });
 
-// GET Endpoint: /bfhl
-app.get("/bfhl", (req, res) => {
-    res.json({ operation_code: 1 });
+// Start server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
