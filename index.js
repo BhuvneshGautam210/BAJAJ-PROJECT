@@ -2,26 +2,28 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const port = 10000;
+const port = process.env.PORT || 10000;
 
-app.use(cors());
+// Enable CORS for all origins (Allow frontend to communicate with backend)
+app.use(cors());  
+
+// Middleware to parse JSON
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    res.send("Backend is working!");
+    res.send("Backend is running!");
 });
 
-// Your existing API routes
 app.post("/bfhl", (req, res) => {
-    const { data } = req.body;
-
-    if (!data || !Array.isArray(data)) {
-        return res.status(400).json({ error: "Invalid input" });
+    const data = req.body.data;
+    
+    if (!Array.isArray(data)) {
+        return res.status(400).json({ error: "Invalid input format" });
     }
 
-    const numbers = data.filter(item => !isNaN(item));
-    const alphabets = data.filter(item => isNaN(item));
-    const highestAlphabet = alphabets.sort().slice(-1)[0] || null;
+    const alphabets = data.filter(item => /^[A-Za-z]$/.test(item));
+    const numbers = data.filter(item => /^[0-9]+$/.test(item));
+    const highestAlphabet = alphabets.length > 0 ? alphabets.sort().reverse()[0] : null;
 
     res.json({
         is_success: true,
