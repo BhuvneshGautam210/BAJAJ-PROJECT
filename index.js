@@ -2,33 +2,37 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 10000;
+const PORT = process.env.PORT || 10000;
 
-// Enable CORS for all origins (Allow frontend to communicate with backend)
-app.use(cors());  
+// ✅ Enable CORS for all origins OR only for your frontend
+app.use(cors({ 
+    origin: "https://bajaj-frontend-oxe8miz9r-bhuvneshs-projects.vercel.app", 
+    methods: "GET,POST",
+    allowedHeaders: "Content-Type"
+}));
 
-// Middleware to parse JSON
-app.use(express.json());
+app.use(express.json()); // Enable JSON Parsing
 
 app.get("/", (req, res) => {
-    res.send("Backend is running!");
+    res.send("API is running...");
 });
 
+// Your existing routes
 app.post("/bfhl", (req, res) => {
-    const data = req.body.data;
+    const inputData = req.body.data;
     
-    if (!Array.isArray(data)) {
-        return res.status(400).json({ error: "Invalid input format" });
+    if (!inputData) {
+        return res.status(400).json({ message: "Invalid input" });
     }
 
-    const alphabets = data.filter(item => /^[A-Za-z]$/.test(item));
-    const numbers = data.filter(item => /^[0-9]+$/.test(item));
-    const highestAlphabet = alphabets.length > 0 ? alphabets.sort().reverse()[0] : null;
+    const numbers = inputData.filter(item => !isNaN(item));
+    const alphabets = inputData.filter(item => isNaN(item));
+    const highestAlphabet = alphabets.sort().slice(-1)[0] || null;
 
     res.json({
         is_success: true,
         user_id: "22BCS14051",
-        email: "your_email@example.com",
+        email: "your-email@example.com",
         roll_number: "22BCS14051",
         numbers,
         alphabets,
@@ -36,7 +40,6 @@ app.post("/bfhl", (req, res) => {
     });
 });
 
-// Start server
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
